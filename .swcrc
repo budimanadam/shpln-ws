@@ -1,0 +1,31 @@
+{
+    "jsc": {
+      "baseUrl": "./",
+      "parser": {
+        "syntax": "typescript",
+        "tsx": false,
+        "dynamicImport": true,
+        "importMeta": true
+      },
+      "paths": {
+        "~/*": [
+          "./src/*"
+        ]
+      },
+      "target": "es2022",
+      "minify": {
+        "compress": false,
+        "mangle": true
+      },
+      "loose": true
+    },
+    "minify": false,
+    "module": {
+      "type": "umd",
+      "strict": false,
+      "strictMode": true,
+      "lazy": false,
+      "noInterop": false,
+      "ignoreDynamic": false
+    }
+  }

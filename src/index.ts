@@ -11,6 +11,7 @@ import autoLoad from '@fastify/autoload';
 import { join } from 'path';
 import 'dotenv/config';
 
+import { logger } from './utils/logger';
 import config from './config';
 import os from 'os';
 
@@ -33,6 +34,7 @@ server.register(autoLoad, {
   dir: join(__dirname, 'modules'),
 });
 
+// server.register(require('@fastify/jwt'), { secret: process.env.JWT_KEY });
 server.register(require('fastify-qs'));
 
 server.setValidatorCompiler(({ schema }): any => {
@@ -44,6 +46,11 @@ server.setSchemaErrorFormatter((error, dataVar): any => {
     message: 'Bad Request',
     code: 'VAL_ERR',
   };
+});
+
+// register all plugins
+server.register(autoLoad, {
+  dir: join(__dirname, 'plugins'),
 });
 
 server.addHook('preSerialization', (request, reply, _payload, done) => {
@@ -94,6 +101,7 @@ server.addHook('onRequest', (request, _reply, done) => {
     mem_usage: `${memoryPercent}%`,
     start_time: time
   }
+  logger.info(JSON.stringify(info))
 
   done();
 })
@@ -113,11 +121,14 @@ server.addHook('onResponse', (request, _reply, done) => {
     mem_usage: `${memoryPercent}%`,
     end_time: time
   }
+  logger.info(JSON.stringify(info))
+
   done();
 })
 
 server.setErrorHandler(function (error, request, reply) {
   // Send error response
+  logger.error({ message: error, requestId: request.request_id });
   delete error.statusCode;
   delete error.validation;
   delete error.name;

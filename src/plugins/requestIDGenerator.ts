@@ -5,6 +5,7 @@ import shortUUID from 'short-uuid';
 declare module 'fastify' {
   interface FastifyRequest {
     request_id: string;
+    token: string;
   }
 }
 

@@ -10,5 +10,6 @@ export default <any>{
     TENANT_DB_PORT: parseInt(process.env.TENANT_DB_PORT, 10),
     TENANT_DB_USER: process.env.TENANT_DB_USER,
     TENANT_DB_PASSWORD: process.env.TENANT_DB_PASSWORD,
+    JUBELIO_API: process.env.JUBELIO_API,
   };
   

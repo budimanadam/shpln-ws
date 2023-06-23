@@ -1,18 +1,12 @@
 import { FastifyPluginAsync } from 'fastify';
 import fp from 'fastify-plugin';
-import { postSalesOrder, postReturnOrder } from './handler';
+import { postCancelInbound } from './handler';
 
 const services: FastifyPluginAsync = async (fastify, options) => {
   fastify.route({
-    url: '/sales-orders',
+    url: '/cancel-inbound',
     method: 'POST',
-    handler: postSalesOrder,
-  });
-
-  fastify.route({
-    url: '/return-order',
-    method: 'POST',
-    handler: postReturnOrder,
+    handler: postCancelInbound,
   });
 };
 

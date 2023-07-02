@@ -1,6 +1,6 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import { PgSysDb, tenantDb } from '../../db/pg-helper';
-import { validate } from '~/utils/validate';
+import { validate, login } from '~/utils/validate';
 import { callApi } from '~/utils/apiJubelio';
 
 export const postProduct = async (req: FastifyRequest, rep: FastifyReply): Promise<void> => {
@@ -32,7 +32,6 @@ export const postProduct = async (req: FastifyRequest, rep: FastifyReply): Promi
             "sell_unit": "Buah",
             "rop": 20,
             "lead_time": 0,
-            "item_category_id": 454,
             "store_priority_qty_treshold": 2,
             "images": [],
             "variation_images": [],
@@ -41,15 +40,16 @@ export const postProduct = async (req: FastifyRequest, rep: FastifyReply): Promi
             "brand_id": null,
             "dropship_this": false,
             "is_active": true,
+            "item_category_id": 454,
             "package_content": null,
-            "package_weight": 1000,
-            "package_height": null,
-            "package_width": null,
-            "package_length": null,
+            "package_weight": body.weight,
+            "package_height": body.height,
+            "package_width": body.width,
+            "package_length": body.length,
             "variations": [
             {}
             ],
-            "brand_name": "Adidas",
+            "brand_name": body.brand || 'Brand',
             "product_skus": [
             {
                 "item_id": 0,
@@ -57,7 +57,7 @@ export const postProduct = async (req: FastifyRequest, rep: FastifyReply): Promi
                 "variation_values": [],
                 "sell_price": null,
                 "buy_price": 0,
-                "barcode": null,
+                "barcode": body.barcode,
                 "is_consignment": false
             }
             ],
@@ -66,10 +66,14 @@ export const postProduct = async (req: FastifyRequest, rep: FastifyReply): Promi
             "buy_unit": "Buah"
         }
         
-        await callApi(req, 'POST', payload, '/inventory/catalog/');
+        const result = await callApi(req, 'POST', payload, '/inventory/catalog/');
         
+        if (result && result.message && (result.message.includes('Missing authentication') || result.message.includes('Invalid credentials') || result.message.includes('Invalid token'))) {
+            await login(req);
+            await callApi(req, 'POST', payload, '/inventory/catalog/');
+        }
         rep.code(200).send({"code":"SUCCESS"});
-    } catch (error) {
-        throw error;
-    }
+        } catch (error) {
+            throw error;
+        }
 }

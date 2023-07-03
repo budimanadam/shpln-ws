@@ -1,7 +1,7 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import { PgSysDb, tenantDb } from '../../db/pg-helper';
 import { callApi } from '~/utils/apiJubelio';
-import { validate } from '~/utils/validate';
+import { validate, login } from '~/utils/validate';
 
 export const postPurchaseOrder = async (req: FastifyRequest, rep: FastifyReply): Promise<void> => {
     try {
@@ -50,8 +50,12 @@ export const postPurchaseOrder = async (req: FastifyRequest, rep: FastifyReply):
             });
         }))
     
-        await callApi(req, 'POST', payload, '/purchase/orders/');
-        
+        const result = await callApi(req, 'POST', payload, '/purchase/orders/');
+
+        if (result && result.message && (result.message.includes('Missing authentication') || result.message.includes('Invalid credentials') || result.message.includes('Invalid token'))) {
+            await login(req);
+            await callApi(req, 'POST', payload, '/inventory/catalog/');
+        }
         rep.code(200).send({"code":"SUCCESS"});   
     } catch (error) {
         throw error;

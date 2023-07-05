@@ -1,8 +1,9 @@
 import { callApi } from '~/utils/apiJubelio';
 
 const validate = async (req) => {
-    const tenant = await req.systemDb.oneOrNone(`select * from tenant_warehouse tw where tw.extra_info ->> 'account_no' = $1`, [req.body.account_no]);
-    
+    const accountNo = req.body.account_no || req.query.id;
+    const tenant = await req.systemDb.oneOrNone(`select * from tenant_warehouse tw where tw.extra_info ->> 'account_no' = $1`, [accountNo]);
+
     if (!tenant) {
         return {result: false, error: 'Tenant not found'};
     }

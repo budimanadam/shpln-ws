@@ -6,6 +6,8 @@ declare module 'fastify' {
   interface FastifyRequest {
     request_id: string;
     token: string;
+    id: any;
+    account_no: string;
   }
 }
 

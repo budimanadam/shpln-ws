@@ -8,8 +8,8 @@ export const postPurchaseOrder = async (req: FastifyRequest, rep: FastifyReply):
         const body: any = req.body;
         const val = await validate(req);
         if (!val.result) rep.code(500).send({'error': val.error});
-        const date = new Date;
         req.token = val.token;
+        const date = new Date;
         const payload = {
             purchaseorder_id: 0,
             purchaseorder_no: body.inbound_short_id,

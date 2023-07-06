@@ -48,13 +48,13 @@ export const postPurchaseOrder = async (req: FastifyRequest, rep: FastifyReply):
                 tax_id: 1,
                 amount: 1
             });
-        }))
+        }));
     
         const result = await callApi(req, 'POST', payload, '/purchase/orders/');
 
         if (result && result.message && (result.message.includes('Missing authentication') || result.message.includes('Invalid credentials') || result.message.includes('Invalid token'))) {
             await login(req);
-            await callApi(req, 'POST', payload, '/inventory/catalog/');
+            await callApi(req, 'POST', payload, '/purchase/orders/');
         }
         rep.code(200).send({"code":"SUCCESS"});   
     } catch (error) {

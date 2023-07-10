@@ -75,6 +75,8 @@ export const postSalesOrder = async (req: FastifyRequest, rep: FastifyReply): Pr
             tax_amount: 0,
             amount: item.qty * (item.price / 100),
             location_id: -1,
+            shipper: body.logistics.express_type,
+            tracking_no: body.logistics.express_id
         });
     }));
 

@@ -26,6 +26,7 @@ const login = async (req) => {
     await req.systemDb.query(`update tenant_warehouse
     set extra_info = $1::jsonb
     where tenant_id = $2`, [ info, req.tenant.tenant_id]);
+    req.token = resultLogin.token;
     return resultLogin.token;
 }
 

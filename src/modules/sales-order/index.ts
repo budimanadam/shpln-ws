@@ -1,12 +1,18 @@
 import { FastifyPluginAsync } from 'fastify';
 import fp from 'fastify-plugin';
-import { postSalesOrder, postReturnOrder } from './handler';
+import { postSalesOrder, postReturnOrder, processSalesOrder } from './handler';
 
 const services: FastifyPluginAsync = async (fastify, options) => {
   fastify.route({
     url: '/sales-orders',
     method: 'POST',
     handler: postSalesOrder,
+  });
+
+  fastify.route({
+    url: '/jubelio/sales-orders',
+    method: 'POST',
+    handler: processSalesOrder,
   });
 
   fastify.route({

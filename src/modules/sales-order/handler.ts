@@ -68,7 +68,7 @@ export const postSalesOrder = async (req: FastifyRequest, rep: FastifyReply): Pr
             item_id: currItem[0].item_id,
             qty_in_base: item.qty,
             tax_id: 1,
-            price: item.price,
+            price: (item.price / 100),
             unit: "Buah",
             disc: 0,
             disc_amount: 0,
@@ -89,6 +89,10 @@ export const postSalesOrder = async (req: FastifyRequest, rep: FastifyReply): Pr
     }
     
     rep.code(200).send({"code":"SUCCESS"});
+}
+
+export const processSalesOrder = async (req: FastifyRequest, rep: FastifyReply): Promise<void> => {
+    rep.code(200).send({"status":"ok"});
 }
 
 export const postReturnOrder = async (req: FastifyRequest, rep: FastifyReply): Promise<void> => {

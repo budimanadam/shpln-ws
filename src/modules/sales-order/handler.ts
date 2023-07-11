@@ -2,6 +2,7 @@ import { FastifyReply, FastifyRequest } from "fastify";
 import { PgSysDb, tenantDb } from '../../db/pg-helper';
 import { validate, login } from '~/utils/validate';
 import { callApi } from '~/utils/apiJubelio';
+import { callApiOneWH } from '~/utils/apiOnewarehouse';
 
 export const postSalesOrder = async (req: FastifyRequest, rep: FastifyReply): Promise<void> => {
     const body: any = req.body;
@@ -28,7 +29,7 @@ export const postSalesOrder = async (req: FastifyRequest, rep: FastifyReply): Pr
         "total_disc": 0,
         "total_tax": 0,
         "grand_total": sub,
-        "ref_no": body.order_mc_id,
+        "ref_no": body.outbound_short_id,
         "location_id": -1,
         "source": 1,
         "is_canceled": false,
@@ -92,6 +93,35 @@ export const postSalesOrder = async (req: FastifyRequest, rep: FastifyReply): Pr
 }
 
 export const processSalesOrder = async (req: FastifyRequest, rep: FastifyReply): Promise<void> => {
+    const body: any = req.body;
+    const val = await validate(req);
+    if (!val.result) rep.code(500).send({'error': val.error});
+    req.token = val.token;
+
+    const payload = {
+        outbound_order_id: body.ref_no,
+        unique_key: `${body.ref_no}11`,
+        outbound_status: 'completed',
+        details: [{express_details: []}],
+        logistics_status: 'delivered',
+        imei_list: []
+    };
+    
+    body.items.forEach(item => {
+        payload.imei_list.push({
+            sku_id: item.item_code,
+            imeis: [item.item_code]
+        });
+    });
+
+    body.items.forEach(item => {
+        payload.details[0].express_details.push({
+            sku_id: item.item_code,
+            qty_actual: parseInt(item.qty_in_base)
+        });
+    });
+
+    let resultPushBill = await callApiOneWH(req, 'POST', payload, `/v20210901/onewarehouse/outbound/callback/abstock`);
     rep.code(200).send({"status":"ok"});
 }
 
